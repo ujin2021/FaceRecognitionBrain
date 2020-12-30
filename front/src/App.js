@@ -9,9 +9,10 @@ import FaceRecognition from './components/FaceRecognition/FaceRecognition'
 import Signin from './components/Signin/Signin'
 import Register from './components/Register/Register'
 import Particles from 'react-particles-js';
+import apiKey from './apiKey'
 
 const app = new Clarifai.App({
-  apiKey: '1b2a8374d0e542a19b88db2f07896876'
+  apiKey: apiKey.KEY
 })
 
 const particlesOptions = {
@@ -34,8 +35,25 @@ class App extends Component {
       imageUrl: '',
       box: {}, // bounding_box를 나타내는 값들
       route: 'signin', // 화면을 보여주기 위해
-      isSignedIn: false
+      isSignedIn: false,
+      user: {
+        id: '',
+        name: '',
+        email: '',
+        entries: 0, 
+        joined: ''
+      }
     }
+  }
+
+  loadUser = (data) => {
+    this.setState({user: {
+      id: data.id,
+      name: data.name,
+      email: data.email,
+      entries: data.entries, 
+      joined: data.joined
+    }})
   }
 
   calculateFaceLocation = (data) => {
@@ -63,7 +81,22 @@ class App extends Component {
   onButtonSubmit = () => { // button을 누르면 imageUrl이 현재의 input(사진 url)
     this.setState({imageUrl: this.state.input}) // target value로 뽑아낸 url을 imageUrl에 넣는다
     app.models.predict(Clarifai.FACE_DETECT_MODEL, this.state.input) // button을 누르면 input의 url이 imageUrl에 저장되므로 현재는 this.state.input으로 적어야 함
-    .then( response => this.displayFaceBox(this.calculateFaceLocation(response)))
+    .then( response => {
+      if(response) {
+        fetch('http://localhost:3001/image', {
+          method: 'put',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+            id: this.state.user.id
+          })
+        })
+        .then(response => response.json())
+        .then(count => {
+          this.setState(Object.assign(this.state.user, { entries: count }))
+        })
+      }
+      this.displayFaceBox(this.calculateFaceLocation(response))
+    })
     .catch(err => console.log(err))
   }
 
@@ -87,14 +120,14 @@ class App extends Component {
           route === 'home'
           ? <div>
               <Logo />
-              <Rank />
+              <Rank name = {this.state.user.name} entries = {this.state.user.entries} />
               <ImageLinkForm onInputChange={this.onInputChange} onButtonSubmit={this.onButtonSubmit} />
               <FaceRecognition box={box} imageUrl={imageUrl} />
             </div>
           : ( 
               route === 'signin'
-              ? <Signin onRouteChange={this.onRouteChange} />
-              : <Register onRouteChange={this.onRouteChange} />
+              ? <Signin loadUser={this.loadUser} onRouteChange={this.onRouteChange} />
+              : <Register loadUser={this.loadUser} onRouteChange={this.onRouteChange} />
             )
         }
       </div>
