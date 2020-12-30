@@ -26,3 +26,8 @@ app.listen(3000, () => { //listen 이후에 실행
     console.log('app is running on port 3000')
 })
 ```
+
+* $ npm install bcrypt-nodejs (bcrypt : 같은 값이라도 매번 암호화 된 값이 다름)
+> <a href='https://www.npmjs.com/package/bcrypt-nodejs'>npm bcrypt-nodejs</a>
+
+* $ npm install cors (localhost에서 테스트하기위해. 보안관련)
