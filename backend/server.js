@@ -1,8 +1,11 @@
 const express = require('express')
 const bodyParser = require('body-parser')
+const bcrypt = require('bcrypt-nodejs')
+const cors = require('cors')
 
 const app = express()
 app.use(bodyParser.json())
+app.use(cors())
 
 const database = {
     users: [
@@ -10,7 +13,7 @@ const database = {
             id: '123',
             name: 'john',
             email: 'john@gmail.com',
-            password: '456',
+            password: 'johnpw',
             entries: 0, // score
             joined: new Date()
         },
@@ -18,7 +21,7 @@ const database = {
             id: '124',
             name: 'pengsoo',
             email: 'pengsoo@gmail.com',
-            password: '567',
+            password: 'pengpw',
             entries: 0, // score
             joined: new Date()
         }
@@ -32,7 +35,7 @@ app.get('/', (req, res) => {
 app.post('/signin', (req, res) => {
     if(req.body.email === database.users[0].email &&
         req.body.password === database.users[0].password) {
-            res.json('success')
+            res.json(database.users[0])
     } else {
         res.status(400).json('error logging in')
     }
@@ -67,10 +70,10 @@ app.get('/profile/:id', (req, res) => {
 
 app.put('/image', (req, res) => {
     const { id } = req.body
-    const found = false
+    let found = false
     database.users.forEach(user => {
         if(user.id === id) {
-            fount = true
+            found = true
             user.entries++
             return res.json(user.entries)
         }
@@ -80,8 +83,15 @@ app.put('/image', (req, res) => {
     }
 })
 
-app.listen(3000, () => { //listen 이후에 실행
-    console.log('app is running on port 3000')
+// bcrypt.hash("bacon", null, null, function(err, hash) {
+//     // Store hash in your password DB.
+// });
+
+// // Load hash from your password DB.
+
+
+app.listen(3001, () => { //listen 이후에 실행
+    console.log('app is running on port 3001')
 })
 
 /*
