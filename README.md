@@ -1,5 +1,7 @@
 ### Face Recognition Brain web page
-from udemy lecture
+from udemy lecture <br>
+localhost로 통신 
+
 
 #### Front(React)
 
